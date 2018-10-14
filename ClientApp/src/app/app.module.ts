@@ -22,6 +22,7 @@ import { VehicleFormComponent } from './vehicle-form/vehicle-form.component';
     VehicleFormComponent
   ],
   imports: [
+    FormsModule,
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
