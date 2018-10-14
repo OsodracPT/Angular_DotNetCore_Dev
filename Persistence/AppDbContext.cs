@@ -15,6 +15,9 @@ namespace angular_dotnet.Persistence
         public DbSet<Make> makes { get; set; }
         public DbSet<Model> models { get; set; }
 
+        public DbSet<Feature> features { get; set; }
+
+
 
         
     }
