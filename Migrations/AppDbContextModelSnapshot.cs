@@ -99,9 +99,7 @@ namespace angulardotnet.Migrations
 
                     b.Property<DateTime>("last_update");
 
-                    b.Property<int>("model_id");
-
-                    b.Property<int?>("modelid");
+                    b.Property<int>("modelid");
 
                     b.HasKey("id");
 
@@ -135,7 +133,8 @@ namespace angulardotnet.Migrations
                 {
                     b.HasOne("angular_dotnet.Models.Model", "model")
                         .WithMany()
-                        .HasForeignKey("modelid");
+                        .HasForeignKey("modelid")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("angular_dotnet.Models.VehicleFeature", b =>
