@@ -1,5 +1,8 @@
+using System;
+using System.Threading.Tasks;
 using angular_dotnet.Controllers.Resources;
 using angular_dotnet.Models;
+using angular_dotnet.Persistence;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,15 +12,22 @@ namespace angular_dotnet.Controllers
     public class VehiclesController : Controller
     {
         private readonly IMapper mapper;
-        public VehiclesController(IMapper mapper)
+        private readonly AppDbContext context;
+        public VehiclesController(IMapper mapper, AppDbContext context)
         {
+            this.context = context;
             this.mapper = mapper;
         }
         [HttpPost]
-        public IActionResult CreateVehicle([FromBody] VehicleResource vehicleResource)
+        public async Task<IActionResult> CreateVehicle([FromBody] VehicleResource vehicleResource)
         {
             var vehicle = mapper.Map<VehicleResource, Vehicle>(vehicleResource);
-            return Ok(vehicle);
+            vehicle.last_update = DateTime.Now;
+            context.vehicles.Add(vehicle);
+            await context.SaveChangesAsync();
+
+            var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
+            return Ok(result);
         }
     }
 }

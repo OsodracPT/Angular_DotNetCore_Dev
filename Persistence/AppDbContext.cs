@@ -11,6 +11,9 @@ namespace angular_dotnet.Persistence
         public DbSet<Model> models { get; set; }
         public DbSet<Feature> features { get; set; }
 
+        public DbSet<Vehicle> vehicles { get; set; }
+
+
         public AppDbContext(DbContextOptions<AppDbContext> options) 
         : base(options)
         {

@@ -13,6 +13,15 @@ namespace angular_dotnet.Mapping
             CreateMap<Make, MakeResource>();
             CreateMap<Model, ModelResource>();
             CreateMap<Feature, FeatureResource>();
+            CreateMap<Vehicle, VehicleResource>()
+            .ForMember(vr => vr.contact, opt => 
+                opt.MapFrom(v => new ContactResource {
+                    name = v.contact_name, 
+                    email=v.contact_email, 
+                    phone=v.contact_phone
+                })) 
+            .ForMember(vr => vr.features, opt => 
+                opt.MapFrom(v => v.features.Select(vf => vf.featureid)));
 
             //API Resource to Domain
             CreateMap<VehicleResource, Vehicle>()
