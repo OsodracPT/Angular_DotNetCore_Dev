@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using angular_dotnet.Persistence;
@@ -9,9 +10,10 @@ using angular_dotnet.Persistence;
 namespace angulardotnet.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181016175419_AddVehicle")]
+    partial class AddVehicle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,15 +114,21 @@ namespace angulardotnet.Migrations
 
             modelBuilder.Entity("angular_dotnet.Models.VehicleFeature", b =>
                 {
-                    b.Property<int>("vehicleid");
+                    b.Property<int>("vehicle_id");
 
-                    b.Property<int>("featureid");
+                    b.Property<int>("feature_id");
 
-                    b.HasKey("vehicleid", "featureid");
+                    b.Property<int?>("featureid");
+
+                    b.Property<int?>("vehicleid");
+
+                    b.HasKey("vehicle_id", "feature_id");
 
                     b.HasIndex("featureid");
 
-                    b.ToTable("vehiclefeatures");
+                    b.HasIndex("vehicleid");
+
+                    b.ToTable("VehicleFeature");
                 });
 
             modelBuilder.Entity("angular_dotnet.Models.Model", b =>
@@ -142,13 +150,11 @@ namespace angulardotnet.Migrations
                 {
                     b.HasOne("angular_dotnet.Models.Feature", "feature")
                         .WithMany()
-                        .HasForeignKey("featureid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("featureid");
 
                     b.HasOne("angular_dotnet.Models.Vehicle", "vehicle")
                         .WithMany("features")
-                        .HasForeignKey("vehicleid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("vehicleid");
                 });
 #pragma warning restore 612, 618
         }
