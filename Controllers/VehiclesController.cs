@@ -43,14 +43,32 @@ namespace angular_dotnet.Controllers
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
             
-var vehicle = await context.vehicles.Include(v => v.features ).SingleOrDefaultAsync(v => v.id == id);            
-mapper.Map<VehicleResource, Vehicle>(vehicleResource, vehicle);
+            var vehicle = await context.vehicles.Include(v => v.features ).SingleOrDefaultAsync(v => v.id == id);            
+            
+            if (vehicle ==null)
+                return NotFound();
+
+            mapper.Map<VehicleResource, Vehicle>(vehicleResource, vehicle);
             vehicle.last_update = DateTime.Now;
 
             await context.SaveChangesAsync();
 
             var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
             return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVehicle(int id)
+        {
+            var vehicle = await context.vehicles.FindAsync(id);
+
+            if (vehicle ==null)
+                return NotFound();
+
+            context.Remove(vehicle);
+            await context.SaveChangesAsync();
+            return Ok(id);
+
         }
     }
 }
