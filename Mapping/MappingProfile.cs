@@ -11,8 +11,9 @@ namespace angular_dotnet.Mapping
         {
             //Domain to API Resource
             CreateMap<Make, MakeResource>();
-            CreateMap<Model, ModelResource>();
-            CreateMap<Feature, FeatureResource>();
+            CreateMap<Make, KeyValuePairResource>();
+            CreateMap<Model, KeyValuePairResource>();
+            CreateMap<Feature, KeyValuePairResource>();
             CreateMap<Vehicle, SaveVehicleResource>()
             .ForMember(vr => vr.contact, opt => 
                 opt.MapFrom(v => new ContactResource {
@@ -33,7 +34,7 @@ namespace angular_dotnet.Mapping
                 }))
                 .ForMember(vr => vr.features, opt => 
                 opt.MapFrom(v => v.features.Select(vf => 
-                    new FeatureResource{id = vf.feature.id, name=vf.feature.name}))); 
+                    new KeyValuePairResource{id = vf.feature.id, name=vf.feature.name}))); 
 
             //API Resource to Domain
             CreateMap<SaveVehicleResource, Vehicle>()

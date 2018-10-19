@@ -4,16 +4,13 @@ using angular_dotnet.Models;
 
 namespace angular_dotnet.Controllers.Resources
 {
-    public class MakeResource
+    public class MakeResource : KeyValuePairResource
     {
-        public int id { get; set; }
-        
-        public string name { get; set; }
-        public ICollection<ModelResource> models{get; set;}
+        public ICollection<KeyValuePairResource> models{get; set;}
 
         public MakeResource()
         {
-            models = new Collection<ModelResource>();
+            models = new Collection<KeyValuePairResource>();
         }
     }
 }
