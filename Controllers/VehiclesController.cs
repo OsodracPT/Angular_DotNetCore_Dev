@@ -14,8 +14,10 @@ namespace angular_dotnet.Controllers
     {
         private readonly IMapper mapper;
         private readonly AppDbContext context;
-        public VehiclesController(IMapper mapper, AppDbContext context)
+        private readonly IVehicleRepository repository;
+        public VehiclesController(IMapper mapper, AppDbContext context, IVehicleRepository repository)
         {
+            this.repository = repository;
             this.context = context;
             this.mapper = mapper;
         }
@@ -24,20 +26,15 @@ namespace angular_dotnet.Controllers
         public async Task<IActionResult> CreateVehicle([FromBody] SaveVehicleResource vehicleResource)
         {
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
             var vehicle = mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource);
             vehicle.last_update = DateTime.Now;
             context.vehicles.Add(vehicle);
             await context.SaveChangesAsync();
 
-            vehicle = await context.vehicles
-            .Include(v=> v.features)
-            .ThenInclude(vf => vf.feature)
-            .Include(v => v.model)
-                .ThenInclude(m => m.make)
-            .SingleOrDefaultAsync(v=> v.id == vehicle.id);            
+            vehicle = await repository.GetVehicle(vehicle.id);
 
             var result = mapper.Map<Vehicle, SaveVehicleResource>(vehicle);
             return Ok(result);
@@ -47,17 +44,12 @@ namespace angular_dotnet.Controllers
         public async Task<IActionResult> UpdateVehicle(int id, [FromBody] SaveVehicleResource vehicleResource)
         {
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
-            var vehicle = await context.vehicles
-            .Include(v=> v.features)
-            .ThenInclude(vf => vf.feature)
-            .Include(v => v.model)
-                .ThenInclude(m => m.make)
-            .SingleOrDefaultAsync(v=> v.id == id);
 
-            if (vehicle ==null)
+            var vehicle = await repository.GetVehicle(id);
+
+            if (vehicle == null)
                 return NotFound();
 
             mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource, vehicle);
@@ -74,7 +66,7 @@ namespace angular_dotnet.Controllers
         {
             var vehicle = await context.vehicles.FindAsync(id);
 
-            if (vehicle ==null)
+            if (vehicle == null)
                 return NotFound();
 
             context.Remove(vehicle);
@@ -86,14 +78,9 @@ namespace angular_dotnet.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicle(int id)
         {
-            var vehicle = await context.vehicles
-            .Include(v=> v.features)
-            .ThenInclude(vf => vf.feature)
-            .Include(v => v.model)
-                .ThenInclude(m => m.make)
-            .SingleOrDefaultAsync(v=> v.id == id);
+            var vehicle = await repository.GetVehicle(id);
 
-            if (vehicle ==null)
+            if (vehicle == null)
                 return NotFound();
 
             var vehicleResource = mapper.Map<Vehicle, VehicleResource>(vehicle);

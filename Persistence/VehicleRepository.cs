@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace angular_dotnet.Persistence
 {
-    public class VehicleRepository
+    public class VehicleRepository : IVehicleRepository
     {
         private readonly AppDbContext context;
 
