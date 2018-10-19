@@ -13,12 +13,12 @@ namespace angular_dotnet.Controllers
     public class VehiclesController : Controller
     {
         private readonly IMapper mapper;
-        private readonly AppDbContext context;
         private readonly IVehicleRepository repository;
-        public VehiclesController(IMapper mapper, AppDbContext context, IVehicleRepository repository)
+        private readonly IUnitOfWork unitOfWork;
+        public VehiclesController(IMapper mapper, IVehicleRepository repository, IUnitOfWork unitOfWork)
         {
+            this.unitOfWork = unitOfWork;
             this.repository = repository;
-            this.context = context;
             this.mapper = mapper;
         }
 
@@ -32,7 +32,7 @@ namespace angular_dotnet.Controllers
             var vehicle = mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource);
             vehicle.last_update = DateTime.Now;
             repository.Add(vehicle);
-            await context.SaveChangesAsync();
+            await unitOfWork.CompleteAsync();
 
             vehicle = await repository.GetVehicle(vehicle.id);
 
@@ -55,7 +55,7 @@ namespace angular_dotnet.Controllers
             mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource, vehicle);
             vehicle.last_update = DateTime.Now;
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CompleteAsync();
 
             var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
             return Ok(result);
@@ -70,7 +70,7 @@ namespace angular_dotnet.Controllers
                 return NotFound();
 
             repository.Remove(vehicle);
-            await context.SaveChangesAsync();
+            await unitOfWork.CompleteAsync();
             return Ok(id);
 
         }
