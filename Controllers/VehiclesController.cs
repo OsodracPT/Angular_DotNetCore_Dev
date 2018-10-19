@@ -32,6 +32,13 @@ namespace angular_dotnet.Controllers
             context.vehicles.Add(vehicle);
             await context.SaveChangesAsync();
 
+            vehicle = await context.vehicles
+            .Include(v=> v.features)
+            .ThenInclude(vf => vf.feature)
+            .Include(v => v.model)
+                .ThenInclude(m => m.make)
+            .SingleOrDefaultAsync(v=> v.id == vehicle.id);            
+
             var result = mapper.Map<Vehicle, SaveVehicleResource>(vehicle);
             return Ok(result);
         }
@@ -43,8 +50,13 @@ namespace angular_dotnet.Controllers
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
             
-            var vehicle = await context.vehicles.Include(v => v.features ).SingleOrDefaultAsync(v => v.id == id);            
-            
+            var vehicle = await context.vehicles
+            .Include(v=> v.features)
+            .ThenInclude(vf => vf.feature)
+            .Include(v => v.model)
+                .ThenInclude(m => m.make)
+            .SingleOrDefaultAsync(v=> v.id == id);
+
             if (vehicle ==null)
                 return NotFound();
 
@@ -53,7 +65,7 @@ namespace angular_dotnet.Controllers
 
             await context.SaveChangesAsync();
 
-            var result = mapper.Map<Vehicle, SaveVehicleResource>(vehicle);
+            var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
             return Ok(result);
         }
 
