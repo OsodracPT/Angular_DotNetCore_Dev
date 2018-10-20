@@ -1,6 +1,10 @@
+import { Vehicle } from './../models/vehicle';
 import { VehicleService } from '../services/vehicle.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { SaveVehicle } from '../models/vehicle';
 
 
 
@@ -14,34 +18,72 @@ export class VehicleFormComponent implements OnInit {
   makes: any[];
   models: any[];
   features: any[];
-  vehicle: any = {
+  vehicle: SaveVehicle = {
+    id: 0,
+    makeid: 0,
+    modelid: 0,
+    is_registered: false,
     features: [],
-    contact: {}
+    contact: {
+      name: '',
+      phone: '',
+      email: ''
+    }
   };
 
-  constructor(private vehicleService: VehicleService,
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private vehicleService: VehicleService,
     private toastr: ToastsManager,
     vcr: ViewContainerRef) {
+
       this.toastr.setRootViewContainerRef(vcr);
+      route.params.subscribe(p => {
+        this.vehicle.id = +p['id'];
+      });
     }
 
   ngOnInit() {
-    this.vehicleService.getMakes()
-    .subscribe((makes: any[]) => {
-      this.makes = makes;
-    });
 
-    this.vehicleService.getFeatures()
-    .subscribe((features: any[]) => {
-      this.features = features;
+    const sources = [
+      this.vehicleService.getMakes(),
+      this.vehicleService.getFeatures(),
+    ];
+
+    if (this.vehicle.id) {
+      sources.push(this.vehicleService.getVehicle(this.vehicle.id));
+    }
+
+    forkJoin(sources).subscribe(data => {
+      this.makes = data[0];
+      this.features = data[1];
+
+      if (this.vehicle.id) {
+        this.setVehicle(data[2]);
+        this.populateModels();
+      }
     });
   }
 
+  private setVehicle(v: Vehicle) {
+    this.vehicle.id = v.id;
+    this.vehicle.makeid = v.make.id;
+    this.vehicle.modelid = v.model.id;
+    this.vehicle.is_registered = v.is_registered;
+    this.vehicle.contact = v.contact;
+
+  }
+
   onMakeChange() {
-    // tslint:disable-next-line:triple-equals
-    const selectedMake = this.makes.find(m => m.id == this.vehicle.makeid);
-    this.models = selectedMake ? selectedMake.models : [];
+    this.populateModels();
     delete this.vehicle.modelid;
+  }
+
+  private populateModels(){
+        // tslint:disable-next-line:triple-equals
+        const selectedMake = this.makes.find(m => m.id == this.vehicle.makeid);
+        this.models = selectedMake ? selectedMake.models : [];
   }
 
   onFeatureToggle(featureid, $event) {
