@@ -57,6 +57,7 @@ namespace angular_dotnet.Controllers
 
             await unitOfWork.CompleteAsync();
 
+            vehicle = await repository.GetVehicle(vehicle.id);
             var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
             return Ok(result);
         }
