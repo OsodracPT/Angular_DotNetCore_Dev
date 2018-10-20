@@ -80,7 +80,7 @@ export class VehicleFormComponent implements OnInit {
     delete this.vehicle.modelid;
   }
 
-  private populateModels(){
+  private populateModels() {
         // tslint:disable-next-line:triple-equals
         const selectedMake = this.makes.find(m => m.id == this.vehicle.makeid);
         this.models = selectedMake ? selectedMake.models : [];
@@ -96,12 +96,29 @@ export class VehicleFormComponent implements OnInit {
   }
 
   submit() {
+    if (this.vehicle.id) {
+      this.vehicleService.update(this.vehicle)
+      .subscribe( x => {
+        this.toastr.success('Success', 'The vehicle was updated');
+      });
+    } else {
+
     this.vehicleService.create(this.vehicle)
     .subscribe(
       x => console.log(x),
       err => {
         this.toastr.error('An unexpected error has ocurred!', 'Error!');
       });
+    }
+  }
+
+  delete() {
+    if (confirm('Are you sure?')) {
+      this.vehicleService.delete(this.vehicle.id)
+      .subscribe( x => {
+        this.router.navigate(['/']);
+      });
+    }
   }
 
 }

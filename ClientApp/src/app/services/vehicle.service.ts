@@ -25,4 +25,13 @@ export class VehicleService {
   getVehicle(id) {
     return this.http.get('/api/vehicles/' + id);
   }
+
+  update(vehicle) {
+    return this.http.put('/api/vahicles/' + vehicle.id, vehicle)
+    .pipe(map((response: any) => response.json()));
+  }
+
+  delete(id) {
+    return this.http.delete('/api/vehicles/' + id);
+  }
 }
