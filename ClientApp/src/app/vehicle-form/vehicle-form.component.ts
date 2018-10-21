@@ -3,7 +3,6 @@ import { VehicleService } from '../services/vehicle.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 import { SaveVehicle } from '../models/vehicle';
 
 
@@ -18,22 +17,23 @@ export class VehicleFormComponent implements OnInit {
   makes: any[];
   models: any[];
   features: any[];
-  // vehicle: SaveVehicle = {
-  //   id: 0,
-  //   makeid: 0,
-  //   modelid: 0,
-  //   is_registered: false,
-  //   features: [],
-  //   contact: {
-  //     name: '',
-  //     phone: '',
-  //     email: ''
-  //   }
-  // };
-    vehicle: any = {
+  vehicle: SaveVehicle = {
+    id: 0,
+    makeid: 0,
+    modelid: 0,
+    is_registered: false,
     features: [],
-    contact: {}
+    contact: {
+      name: '',
+      phone: '',
+      email: ''
+    }
   };
+  // vehicle: any = {
+  //   features: [],
+  //   contact: {}
+  // };
+
 
   constructor(
     private route: ActivatedRoute,
@@ -43,13 +43,15 @@ export class VehicleFormComponent implements OnInit {
     vcr: ViewContainerRef) {
 
       this.toastr.setRootViewContainerRef(vcr);
+
       route.params.subscribe(p => {
+        if (p) {
         this.vehicle.id = +p['id'];
+        }
       });
     }
 
   ngOnInit() {
-
 
 
     this.vehicleService.getMakes()
@@ -61,15 +63,15 @@ export class VehicleFormComponent implements OnInit {
         this.features = features;
       });
 
-      // this.vehicleService.getVehicle(this.vehicle.id)
-      // .subscribe((v: any) => {
-      //   this.vehicle = v;
-      // });
-
-      // if (this.vehicle.id) {
-      //   this.vehicleService.getVehicle(this.vehicle.id);
-      // }
-
+      if (this.vehicle.id) {
+        this.vehicleService.getVehicle(this.vehicle.id)
+        .subscribe((v: any) => {
+          if (this.vehicle.id) {
+            this.setVehicle(v);
+            this.populateModels();
+          }
+        });
+      }
     });
 
 
@@ -106,12 +108,15 @@ export class VehicleFormComponent implements OnInit {
 
   submit() {
     if (this.vehicle.id) {
+    console.log(this.vehicle.id);
+    }
+    if (this.vehicle.id) {
       this.vehicleService.update(this.vehicle)
       .subscribe( x => {
         this.toastr.success('Success', 'The vehicle was updated');
       });
     } else {
-
+    this.vehicle.id = 0;
     this.vehicleService.create(this.vehicle)
     .subscribe(
       x => console.log(x),
