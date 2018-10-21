@@ -18,17 +18,21 @@ export class VehicleFormComponent implements OnInit {
   makes: any[];
   models: any[];
   features: any[];
-  vehicle: SaveVehicle = {
-    id: 0,
-    makeid: 0,
-    modelid: 0,
-    is_registered: false,
+  // vehicle: SaveVehicle = {
+  //   id: 0,
+  //   makeid: 0,
+  //   modelid: 0,
+  //   is_registered: false,
+  //   features: [],
+  //   contact: {
+  //     name: '',
+  //     phone: '',
+  //     email: ''
+  //   }
+  // };
+    vehicle: any = {
     features: [],
-    contact: {
-      name: '',
-      phone: '',
-      email: ''
-    }
+    contact: {}
   };
 
   constructor(
@@ -46,24 +50,29 @@ export class VehicleFormComponent implements OnInit {
 
   ngOnInit() {
 
-    const sources = [
-      this.vehicleService.getMakes(),
-      this.vehicleService.getFeatures(),
-    ];
 
-    if (this.vehicle.id) {
-      sources.push(this.vehicleService.getVehicle(this.vehicle.id));
-    }
 
-    forkJoin(sources).subscribe(data => {
-      this.makes = data[0];
-      this.features = data[1];
+    this.vehicleService.getMakes()
+    .subscribe((makes: any[]) => {
+      this.makes = makes;
 
-      if (this.vehicle.id) {
-        this.setVehicle(data[2]);
-        this.populateModels();
-      }
+      this.vehicleService.getFeatures()
+      .subscribe((features: any[]) => {
+        this.features = features;
+      });
+
+      // this.vehicleService.getVehicle(this.vehicle.id)
+      // .subscribe((v: any) => {
+      //   this.vehicle = v;
+      // });
+
+      // if (this.vehicle.id) {
+      //   this.vehicleService.getVehicle(this.vehicle.id);
+      // }
+
     });
+
+
   }
 
   private setVehicle(v: Vehicle) {
